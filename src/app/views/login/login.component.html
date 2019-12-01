@@ -1,0 +1,26 @@
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <h2 class="ui blue image header">
+            <img src="assets/logo.png" class="image">
+            <div class="ui content blue">Log in to your account</div>
+        </h2>
+        <form class="ui large form">
+            <div class="ui segment">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        <input type="text" name="username" placeholder="Username" [(ngModel)]="user.username">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input type="password" name="password" placeholder="Password" [(ngModel)]="user.password">
+                    </div>
+                </div>
+                <button class="ui fluid large submit button blue bold" (click)="login()">Login</button>
+            </div>
+        </form>
+        <div class="ui error message" *ngIf="errorMessage">{{errorMessage}}</div>
+    </div>
+</div>

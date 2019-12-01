@@ -1,0 +1,69 @@
+<sui-dimmer class="page" [isDimmed]="!dataLoaded">
+  <h2 class="ui inverted icon header">
+    <div class="ui text loader">Loading data...</div>
+  </h2>
+</sui-dimmer>
+
+<div class="ui grid no-side-margins">
+  <div class="row">
+    <div class="ui form">
+      <div class="field">
+        <label>Date from</label>
+        <div class="ui left icon input">
+          <i class="calendar icon"></i>
+          <input suiDatepicker readonly [(ngModel)]="dateFrom" pickerMode="date" [pickerFirstDayOfWeek]="firstDayOfWeek"
+            [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateFrom($event)">
+        </div>
+      </div>
+    </div>
+    <div class="ui form">
+      <div class="field">
+        <label>Date to</label>
+        <div class="ui left icon input">
+          <i class="calendar icon"></i>
+          <input suiDatepicker readonly [(ngModel)]="dateTo" pickerMode="date" [pickerFirstDayOfWeek]="firstDayOfWeek"
+            [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateTo($event)">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ui segment">
+  <h1>Temperature</h1>
+  <div class="one column row no-top-padding no-bottom-padding">
+    <div class="column">
+      <div class="chart-container">
+        <canvas #temperatureChart baseChart height="40" [datasets]="temperatureDataSets" [labels]="temperatureLabels"
+          [options]="temperatureChartOptions" legend="false" chartType="line" [plugins]="lineChartPlugins">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ui segment">
+  <h1>Humidity</h1>
+  <div class="one column row no-top-padding no-bottom-padding">
+    <div class="column">
+      <div class="chart-container">
+        <canvas baseChart height="40" [datasets]="humidityDataSets" [labels]="humidityLabels"
+          [options]="humidityChartOptions" legend="false" chartType="line">
+        </canvas>
+      </div>
+    </div> 
+  </div>
+</div>
+
+<div class="ui segment">
+  <h1>Pressure</h1>
+  <div class="one column row no-top-padding no-bottom-padding">
+    <div class="column">
+      <div class="chart-container">
+        <canvas baseChart height="40" [datasets]="pressureDataSets" [labels]="pressureLabels"
+          [options]="pressureChartOptions" [legend]="'false'" chartType="line">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
