@@ -11,7 +11,7 @@
         <label>Date from</label>
         <div class="ui left icon input">
           <i class="calendar icon"></i>
-          <input suiDatepicker readonly [(ngModel)]="dateFrom" pickerMode="date" [pickerFirstDayOfWeek]="firstDayOfWeek"
+          <input suiDatepicker readonly [(ngModel)]="dateFrom" pickerMode="date" pickerFirstDayOfWeek="1"
             [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateFrom($event)">
         </div>
       </div>
@@ -21,8 +21,8 @@
         <label>Date to</label>
         <div class="ui left icon input">
           <i class="calendar icon"></i>
-          <input suiDatepicker readonly [(ngModel)]="dateTo" pickerMode="date" [pickerFirstDayOfWeek]="firstDayOfWeek"
-            [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateTo($event)">
+          <input suiDatepicker readonly [(ngModel)]="dateTo" pickerMode="date" pickerFirstDayOfWeek="1"
+          [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateTo($event)">
         </div>
       </div>
     </div>

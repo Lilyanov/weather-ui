@@ -141,14 +141,11 @@ export class GraphViewComponent implements OnInit {
 
     this.humidityChartOptions.scales.yAxes[0].scaleLabel.labelString = 'RH';
     this.humidityChartOptions.annotation.annotations[0].value = 60;
-    this.humidityChartOptions.annotation.annotations[1].value = 20;
+    this.humidityChartOptions.annotation.annotations[1].value = 30;
 
     this.pressureChartOptions.scales.yAxes[0].scaleLabel.labelString = 'hPa';
-    this.pressureChartOptions.annotation.annotations[0].value = 1100;
-    //this.pressureChartOptions.annotation.annotations[0].label.yAdjust = -10;
-    this.pressureChartOptions.annotation.annotations[0].value = 1100;
-
-    this.pressureChartOptions.annotation.annotations[1].value = 900;
+    this.pressureChartOptions.annotation.annotations[0].value = 1020;
+    this.pressureChartOptions.annotation.annotations[1].value = 930;
 
     this.dateTo = moment().startOf('day').add(1, 'day').toDate();
     this.prevousDateTo = this.dateTo;
