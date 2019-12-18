@@ -30,6 +30,19 @@
 </div>
 
 <div class="ui segment">
+  <h1>Air Quality</h1>
+  <div class="one column row no-top-padding no-bottom-padding">
+    <div class="column">
+      <div class="chart-container">
+        <canvas baseChart height="40" [datasets]="airQualityDataSets" [labels]="airQualityLabels"
+          [options]="airQualityChartOptions" legend="true" chartType="line">
+        </canvas>
+      </div>
+    </div> 
+  </div>
+</div>
+
+<div class="ui segment">
   <h1>Temperature</h1>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">

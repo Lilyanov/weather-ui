@@ -33,8 +33,30 @@ export class GraphViewComponent implements OnInit {
             tooltipFormat: 'YYYY-MM-DD HH:mm',
             displayFormats: {
               'minute': 'HH:mm',
-              'hour': 'HH:mm',
-            },
+              'hour': 'HH:mm'
+            }
+          }
+        },
+        {
+          id: 'x-axis-1',
+          gridLines: {
+            lineWidth: 3
+          },
+          ticks: {
+            min: moment().startOf('day').add('minute', this.utcOffset),
+            max: moment().startOf('day').add('day', 1).add('minute', this.utcOffset)
+          },
+          bounds: 'ticks',
+          type: 'time',
+          time: {
+            parser: "YYYY-MM-DD HH:mm",
+            unit: 'day',
+            minUnit: 'day',
+            unitStepSize: 1,
+            tooltipFormat: 'YYYY-MM-DD HH:mm',
+            displayFormats: {
+              'day': 'YYYY-MM-DD'
+            }
           }
         }
       ],
@@ -86,28 +108,17 @@ export class GraphViewComponent implements OnInit {
             fontColor: '#36a2eb',
             content: 'Low'
           }
-        },
-        {
-          type: 'line',
-          mode: 'vertical',
-          scaleID: 'x-axis-0',
-          value: '00:00',
-          borderColor: 'orange',
-          borderWidth: 2,
-          borderDash: [5, 5],
-          label: {
-            yAdjust: -10,
-            enabled: true,
-            backgroundColor: 'rgb(54, 162, 235, 0.3)',
-            fontColor: 'orange',
-            content: 'Low'
-          }
         }
       ]
     }
   };
 
   public lineChartPlugins = [pluginAnnotations]
+
+  // Air Quality
+  public airQualityChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
+  public airQualityDataSets: ChartDataSets[] = [{ data: [], label: 'PM10' }, { data: [], label: 'PM2.5' }];
+  public airQualityLabels: any[] = [];
 
   // Temperature
   public temperatureChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
@@ -135,6 +146,13 @@ export class GraphViewComponent implements OnInit {
   constructor(private timeseriesService: TimeseriesService) { }
 
   ngOnInit() {
+    this.airQualityChartOptions.scales.yAxes[0].scaleLabel.labelString = 'µg/m3';
+    this.airQualityChartOptions.legend.display = true;
+    this.airQualityChartOptions.annotation.annotations[0].value = 50;
+    this.airQualityChartOptions.annotation.annotations[0].label.content = 'High PM 10';
+    this.airQualityChartOptions.annotation.annotations[1].value = 25;
+    this.airQualityChartOptions.annotation.annotations[1].label.content = 'High PM 2.5';
+
     this.temperatureChartOptions.scales.yAxes[0].scaleLabel.labelString = '°C';
     this.temperatureChartOptions.annotation.annotations[0].value = 25;
     this.temperatureChartOptions.annotation.annotations[1].value = 18;
@@ -162,19 +180,24 @@ export class GraphViewComponent implements OnInit {
     this.dateTo = newDateTo;
     this.prevousDateTo = newDateTo;
     const chartDateTo = moment(newDateTo).add('minute', this.utcOffset);
+ 
+    this.airQualityChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
+    this.airQualityChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
+    this.airQualityChartOptions = this.deepCopy(this.airQualityChartOptions);
 
     this.temperatureChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
+    this.temperatureChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
     this.temperatureChartOptions = this.deepCopy(this.temperatureChartOptions);
 
     this.humidityChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
+    this.humidityChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
     this.humidityChartOptions = this.deepCopy(this.humidityChartOptions);
 
     this.pressureChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
+    this.pressureChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
     this.pressureChartOptions = this.deepCopy(this.pressureChartOptions);
 
-    this.loadTempreture();
-    this.loadHumidty();
-    this.loadPressure();
+    this.loadTimeseries();
   }
 
   public updateDateFrom(newDateFrom: Date) {
@@ -185,60 +208,69 @@ export class GraphViewComponent implements OnInit {
     this.prevousDateFrom = newDateFrom;
     const chartDateFrom = moment(newDateFrom).add('minute', this.utcOffset);
 
+    this.airQualityChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
+    this.airQualityChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
+    this.airQualityChartOptions = this.deepCopy(this.airQualityChartOptions);
+
     this.temperatureChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
+    this.temperatureChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
     this.temperatureChartOptions = this.deepCopy(this.temperatureChartOptions);
 
     this.humidityChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
+    this.humidityChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
     this.humidityChartOptions = this.deepCopy(this.humidityChartOptions);
 
     this.pressureChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
+    this.pressureChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
     this.pressureChartOptions = this.deepCopy(this.pressureChartOptions);
 
-    this.loadTempreture();
-    this.loadHumidty();
-    this.loadPressure();
+    this.loadTimeseries();
   }
 
-  private loadTempreture(): void {
+  private loadTimeseries(): void {
+    this.airQualityDataSets[0].data = [];
+    this.airQualityDataSets[1].data = [];
+    this.airQualityLabels = [];
     this.temperatureLabels = [];
     this.temperatureDataSets[0].data = [];
-    this.dataLoaded = false;
-    this.timeseriesService.getTimeseries('temperature', this.dateFrom, this.dateTo)
-      .subscribe(timeseries => {
-        timeseries.forEach(ts => {
-          this.temperatureLabels.push(moment(ts.valueTime));
-          this.temperatureDataSets[0].data.push(ts.value);
-        });
-        this.dataLoaded = true;
-      });
-  }
-
-  private loadHumidty(): void {
     this.humidityLabels = [];
     this.humidityDataSets[0].data = [];
-    this.dataLoaded = false;
-    this.timeseriesService.getTimeseries('humidity', this.dateFrom, this.dateTo)
-      .subscribe(timeseries => {
-        timeseries.forEach(ts => {
-          this.humidityLabels.push(moment(ts.valueTime));
-          this.humidityDataSets[0].data.push(ts.value);
-        });
-        this.dataLoaded = true;
-      });
-  }
-
-  private loadPressure(): void {
     this.pressureLabels = [];
     this.pressureDataSets[0].data = [];
     this.dataLoaded = false;
-    this.timeseriesService.getTimeseries('pressure', this.dateFrom, this.dateTo)
-      .subscribe(timeseries => {
-        timeseries.forEach(ts => {
-          this.pressureLabels.push(moment(ts.valueTime));
-          this.pressureDataSets[0].data.push(ts.value);
+
+    this.timeseriesService.getTimeseries(['temperature', 'humidity', 'pressure', 'pmten', 'pmtwofive'], this.dateFrom, this.dateTo)
+      .subscribe(timeseriesGroups => {
+        timeseriesGroups.forEach(tsGroup => {
+          if (tsGroup.type === 'temperature') {
+            this.loadChartData(tsGroup.timeseries, 
+              this.temperatureLabels, this.temperatureDataSets[0].data, this.temperatureChartOptions);
+          } else if (tsGroup.type === 'humidity') {
+            this.loadChartData(tsGroup.timeseries,
+              this.humidityLabels, this.humidityDataSets[0].data, this.humidityChartOptions);
+          } else if (tsGroup.type === 'pressure') {
+            this.loadChartData(tsGroup.timeseries,
+              this.pressureLabels, this.pressureDataSets[0].data, this.pressureChartOptions);
+          } else if (tsGroup.type === 'pmten') {
+            this.loadChartData(tsGroup.timeseries,
+              this.airQualityLabels, this.airQualityDataSets[0].data, this.airQualityChartOptions, ts => ts.value < 1000);
+          } else if (tsGroup.type === 'pmtwofive') {
+            this.loadChartData(tsGroup.timeseries,
+              this.airQualityLabels, this.airQualityDataSets[1].data, this.airQualityChartOptions, ts=> ts.value < 1000);
+          }
         });
         this.dataLoaded = true;
       });
+  }
+
+  private loadChartData(timeseries: any[], labels: any[], dataSet: any[], options: any, tsFilter = (ts => true)) {
+    options.annotation.annotations = options.annotation.annotations.slice(0, 2);
+    timeseries.forEach(ts => {
+      labels.push(moment(ts.valueTime));
+      if (tsFilter(ts)) { 
+        dataSet.push(ts.value);
+      }
+    });
   }
 
   private deepCopy(obj: any) {
