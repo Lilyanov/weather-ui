@@ -13,15 +13,16 @@ import { AuthorizationGuardService } from './services/authorization-guard.servic
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { FormsModule } from '@angular/forms';
 import { SuiModule } from 'ng2-semantic-ui';
+import { DevicesService } from './services/devices.service';
 
-const VIEWS = [Views.GraphViewComponent, Views.LoginComponent];
+const VIEWS = [Views.GraphViewComponent, Views.LoginComponent, Views.DeviceViewComponent];
 const COMPONENTS = [Components.TopBarComponent];
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    ...VIEWS, ...COMPONENTS, 
+    ...VIEWS, ...COMPONENTS 
   ],
   imports: [
     BrowserModule,
@@ -33,6 +34,7 @@ const COMPONENTS = [Components.TopBarComponent];
   ],
   providers: [
     TimeseriesService,
+    DevicesService,
     AuthorizationService,
     CookieService,
     AuthorizationGuardService,

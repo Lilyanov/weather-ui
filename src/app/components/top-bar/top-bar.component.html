@@ -1,6 +1,7 @@
 <div class="ui top fixed menu">
   <a class="item" href="#"><img src="assets/logo.png"></a>
   <a class="item" *ngIf="authorizationService.authorized" routerLink="/graph-view">Measurements</a>
+  <a class="item" *ngIf="authorizationService.authorized" routerLink="/device-view">Devices</a>
   <div class="right menu">
     <span class="item no-padding"><i class="question circle outline icon custom-help-icon"></i></span>
     <div class="ui dropdown item" suiDropdown *ngIf="authorizationService.authorized">

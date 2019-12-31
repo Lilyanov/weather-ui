@@ -1,0 +1,86 @@
+<sui-dimmer class="page" [isDimmed]="!dataLoaded">
+    <h2 class="ui inverted icon header">
+      <div class="ui text loader">Sending data...</div>
+    </h2>
+</sui-dimmer>
+
+<div class="ui segment two columns vertically divided grid" style="padding-left: 20px; padding-right:20px;">
+    <div class="row">
+        <div class="three wide column">
+            <h3>Devices</h3>
+        </div>
+        <div class="five wide column">
+            <h3>Scheduled switches</h3>
+        </div>
+    </div>
+
+    <div class="row" *ngFor="let device of devices">
+        <div class="three wide column">
+            <div class="ui card">
+                <div class="image">
+                    <img src="assets/images/lamp.png">
+                </div>
+                <div class="content">
+                    <a class="header">{{ device.deviceId}}</a>
+                    <div class="meta">
+                        <span class="date">Last updated at {{ device.lastStatusChange | date: 'HH:mm dd/MM/yy' }}</span>
+                    </div>
+                    <div class="description">
+                        Currently lamp is <b>TURNED {{ device.status === 1 ? 'ON' : 'OFF' }}</b>
+                    </div>
+                </div>
+                <div class="extra content">
+                    <button class="positive ui button" *ngIf="device.status == 0"
+                        (click)="deviceSwitch(device.deviceId, 1)">Turn on</button>
+                    <button class="negative ui button" *ngIf="device.status == 1"
+                        (click)="deviceSwitch(device.deviceId, 0)">Turn off</button>
+                </div>
+            </div>
+        </div>
+        <div class="thirteen wide column">
+            <table class="ui selectable selled table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Scheduled at</th>
+                        <th>Desired status</th>
+                        <th>State</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let schedule of device.schedules">
+                        <td>
+                            <sui-select class="selection" [(ngModel)]="selectedOption" [options]="options"
+                                labelField="name"></sui-select>
+                        </td>
+                        <td class="collapsable">
+                            <div class="ui left icon input">
+                                <i class="calendar icon"></i>
+                                <input suiDatepicker readonly [(ngModel)]="schedule.scheduledFor" pickerMode="datetime"
+                                    pickerFirstDayOfWeek="1" [pickerUseNativeOnMobile]="false">
+                            </div>
+                        </td>
+                        <td>
+                            <sui-select class="selection" [(ngModel)]="selectedOption" [options]="options"
+                                labelField="name"></sui-select>
+                        </td>
+                        <td>{{ schedule.state }}</td>
+                        <td>{{ schedule.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                    </tr>
+                </tbody>
+                <tfoot class="full-width">
+                    <tr>
+                      <th colspan="5">
+                        <button class="ui small primary labeled icon button">
+                          <i class="clock icon"></i> Add Schedule
+                        </button>
+                        <button class="ui right floated small positive button">Save</button>
+                      </th>
+                    </tr>
+                  </tfoot>
+            </table>
+        </div>
+    </div>
+
+</div>
