@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
 
   public ngOnInit() {
     if (this.authorizationService.isAuthenticated()) {
-      this.router.navigate(['/graph-view']);
+      this.router.navigate(['/device-view']);
     }
   }
 
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
       (user: User) => {
         this.authorizationService.setJWT(user);
         this.errorMessage = '';
-        this.router.navigate(['/graph-view']);
+        this.router.navigate(['/device-view']);
       },
       (error_response: any) => {
         this.errorMessage = error_response.error;
