@@ -23,4 +23,8 @@ export class DevicesService {
         }
         return this.http.post<any>(`${environment.apiHost}/devices/${deviceId}/switch`, body);
     }
+
+    public scheduleSwitches(deviceId: string, schedules: any[]): Observable<any> {
+      return this.http.post<any>(`${environment.apiHost}/devices/${deviceId}/schedule`, schedules);
+  }
 }

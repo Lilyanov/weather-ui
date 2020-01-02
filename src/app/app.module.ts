@@ -14,7 +14,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { FormsModule } from '@angular/forms';
 import { SuiModule } from 'ng2-semantic-ui';
 import { DevicesService } from './services/devices.service';
-
+import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+ 
 const VIEWS = [Views.GraphViewComponent, Views.LoginComponent, Views.DeviceViewComponent];
 const COMPONENTS = [Components.TopBarComponent];
 
@@ -30,7 +32,13 @@ const COMPONENTS = [Components.TopBarComponent];
     HttpClientModule,
     ChartsModule,
     FormsModule,
-    SuiModule
+    SuiModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-top-center',
+      preventDuplicates: true,
+    })
   ],
   providers: [
     TimeseriesService,

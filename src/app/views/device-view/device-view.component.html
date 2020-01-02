@@ -1,6 +1,6 @@
 <sui-dimmer class="page" [isDimmed]="!dataLoaded">
     <h2 class="ui inverted icon header">
-      <div class="ui text loader">Sending data...</div>
+      <div class="ui text loader">Loading ...</div>
     </h2>
 </sui-dimmer>
 
@@ -44,38 +44,48 @@
                         <th>Type</th>
                         <th>Scheduled at</th>
                         <th>Desired status</th>
-                        <th>State</th>
                         <th>Created At</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let schedule of device.schedules">
                         <td>
-                            <sui-select class="selection" [(ngModel)]="selectedOption" [options]="options"
-                                labelField="name"></sui-select>
+                            <sui-select class="selection" [(ngModel)]="schedule.type" [options]="typeOptions" #typeSelect>
+                                <sui-select-option *ngFor="let o of typeSelect.filteredOptions" [value]="o"></sui-select-option>
+                            </sui-select>
                         </td>
                         <td class="collapsable">
                             <div class="ui left icon input">
                                 <i class="calendar icon"></i>
-                                <input suiDatepicker readonly [(ngModel)]="schedule.scheduledFor" pickerMode="datetime"
+                                <input suiDatepicker readonly [(ngModel)]="schedule.scheduledFor" 
+                                    [attr.disabled]="schedule.type === 'DISABLED' ? '': null"
+                                    [pickerMode]="schedule.type === 'REPEATED' ? 'time' : 'datetime'"
                                     pickerFirstDayOfWeek="1" [pickerUseNativeOnMobile]="false">
                             </div>
                         </td>
                         <td>
-                            <sui-select class="selection" [(ngModel)]="selectedOption" [options]="options"
-                                labelField="name"></sui-select>
+                            <sui-select class="selection" [(ngModel)]="schedule.desiredStatus" [options]="statusOptions"
+                                        [isDisabled]="schedule.type === 'DISABLED'"
+                                        labelField="name" valueField="value" #statusSelect>
+                               <sui-select-option *ngFor="let o of statusSelect.filteredOptions" [value]="o"></sui-select-option>
+                            </sui-select>
                         </td>
-                        <td>{{ schedule.state }}</td>
                         <td>{{ schedule.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                        <td>
+                            <button class="ui small icon button" (click)="removeSchedule(device, schedule)">
+                                <i class="close icon"></i>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
                 <tfoot class="full-width">
                     <tr>
                       <th colspan="5">
-                        <button class="ui small primary labeled icon button">
+                        <button class="ui small primary labeled icon button" (click)="addSchedule(device)">
                           <i class="clock icon"></i> Add Schedule
                         </button>
-                        <button class="ui right floated small positive button">Save</button>
+                        <button class="ui right floated small positive button" (click)="saveSchedules(device)">Save</button>
                       </th>
                     </tr>
                   </tfoot>

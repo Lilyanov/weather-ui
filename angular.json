@@ -29,7 +29,8 @@
             ],
             "styles": [
               "./semantic/dist/semantic.min.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": [
               "./src/assets/jquery.min.js",
