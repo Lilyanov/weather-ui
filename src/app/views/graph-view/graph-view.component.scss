@@ -10,3 +10,18 @@
   margin-left: 0;
   margin-right: 0;
 }
+
+.content .meta span.date {
+  font-size: 1em;
+  color: rgba(0,0,0,.4);
+}
+
+.header {
+  h1 {
+    float: left;
+  }
+
+  div.content {
+    float: right;
+  }
+}

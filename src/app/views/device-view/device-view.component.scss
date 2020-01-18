@@ -1,8 +1,21 @@
 @media only screen and (max-width: 768px) {
-    .scheduled-section {
-        display: none !important;
+
+    .row .scheduled-section {
+
+        h3,th.big-screen {
+            display: none !important;
+        }
+
+        th.small-screen {
+            display: block;
+        }
     }
+
     .row .device-section.three.wide.column {
         width: 100% !important;
     }
+}
+
+.scheduled-section .small-screen {
+    display: none;
 }

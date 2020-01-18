@@ -4,8 +4,10 @@
 
 export const environment = {
   production: false,
+  wsHost: "ws://localhost:8080/real-time/websocket",
   apiHost: "http://localhost:8080"
  // apiHost: "http://99.80.157.1:8080"
+  
 };
 
 /*

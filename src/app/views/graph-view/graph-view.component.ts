@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren } from '@angular/core';
 import { ChartDataSets, ChartOptions } from 'chart.js';
 import { TimeseriesService } from '../../services/timeseries.service'
 import * as moment from 'moment';
 import * as pluginAnnotations from 'chartjs-plugin-annotation';
+import { RealTimeService } from 'src/app/services/real-time.service';
+import {BaseChartDirective} from 'ng2-charts';
 
 @Component({
   selector: 'app-graph-view',
@@ -113,28 +115,37 @@ export class GraphViewComponent implements OnInit {
     }
   };
 
+
+  @ViewChildren("baseChart") 
+  public chart: BaseChartDirective;
+
   public lineChartPlugins = [pluginAnnotations]
 
   // Air Quality
   public airQualityChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
   public airQualityDataSets: ChartDataSets[] = [{ data: [], label: 'PM10' }, { data: [], label: 'PM2.5' }];
   public airQualityLabels: any[] = [];
+  public lastPM10Value: any = { value: 0.0 };
+  public lastPM25Value: any = { value: 0.0 };
 
   // Temperature
   public temperatureChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
   public temperatureDataSets: ChartDataSets[] = [{ data: [], label: 'Temperature' }];
   public temperatureLabels: any[] = [];
+  public lastTemperatureValue: any = { value: 0.0 };
+
 
   // Humidity
   public humidityChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
   public humidityDataSets: ChartDataSets[] = [{ data: [], label: 'Humidity' }];
   public humidityLabels: any[] = [];
+  public lastHumidityValue: any = { value: 0.0 };
 
   // Presure
   public pressureChartOptions: (ChartOptions & { annotation: any }) = this.deepCopy(this.baseChartOptions);
   public pressureDataSets: ChartDataSets[] = [{ data: [], label: 'Pressure' }];
   public pressureLabels: any[] = [];
-
+  public lastPressureValue: any = { value: 0.0 };
 
   public dateFrom: Date;
   private prevousDateFrom: Date;
@@ -143,7 +154,7 @@ export class GraphViewComponent implements OnInit {
   public dataLoaded: boolean;
 
 
-  constructor(private timeseriesService: TimeseriesService) { }
+  constructor(private timeseriesService: TimeseriesService, private realtimeService: RealTimeService) { }
 
   ngOnInit() {
     this.airQualityChartOptions.scales.yAxes[0].scaleLabel.labelString = 'µg/m3';
@@ -157,7 +168,7 @@ export class GraphViewComponent implements OnInit {
     this.temperatureChartOptions.annotation.annotations[0].value = 25;
     this.temperatureChartOptions.annotation.annotations[1].value = 18;
 
-    this.humidityChartOptions.scales.yAxes[0].scaleLabel.labelString = 'RH';
+    this.humidityChartOptions.scales.yAxes[0].scaleLabel.labelString = '%';
     this.humidityChartOptions.annotation.annotations[0].value = 60;
     this.humidityChartOptions.annotation.annotations[1].value = 30;
 
@@ -170,6 +181,12 @@ export class GraphViewComponent implements OnInit {
     this.dateFrom = moment().startOf('day').toDate();
     this.prevousDateFrom = moment().subtract('day', 1).toDate();
     this.updateDateFrom(this.dateFrom);
+
+    this.realtimeService.getTimeseries().subscribe(message => {
+      console.log(message);
+      const timeseries = JSON.parse(message.body).body
+      this.showTimeseries(timeseries);
+    });
 
   }
 
@@ -241,26 +258,50 @@ export class GraphViewComponent implements OnInit {
 
     this.timeseriesService.getTimeseries(['temperature', 'humidity', 'pressure', 'pmten', 'pmtwofive'], this.dateFrom, this.dateTo)
       .subscribe(timeseriesGroups => {
-        timeseriesGroups.forEach(tsGroup => {
-          if (tsGroup.type === 'temperature') {
-            this.loadChartData(tsGroup.timeseries, 
-              this.temperatureLabels, this.temperatureDataSets[0].data, this.temperatureChartOptions);
-          } else if (tsGroup.type === 'humidity') {
-            this.loadChartData(tsGroup.timeseries,
-              this.humidityLabels, this.humidityDataSets[0].data, this.humidityChartOptions);
-          } else if (tsGroup.type === 'pressure') {
-            this.loadChartData(tsGroup.timeseries,
-              this.pressureLabels, this.pressureDataSets[0].data, this.pressureChartOptions);
-          } else if (tsGroup.type === 'pmten') {
-            this.loadChartData(tsGroup.timeseries,
-              this.airQualityLabels, this.airQualityDataSets[0].data, this.airQualityChartOptions, ts => ts.value < 1000);
-          } else if (tsGroup.type === 'pmtwofive') {
-            this.loadChartData(tsGroup.timeseries,
-              this.airQualityLabels, this.airQualityDataSets[1].data, this.airQualityChartOptions, ts=> ts.value < 1000);
-          }
-        });
+        this.showTimeseries(timeseriesGroups);
         this.dataLoaded = true;
-      });
+      }); 
+  }
+
+  private showTimeseries(timeseriesGroups: any[]) {
+    timeseriesGroups.forEach(tsGroup => {
+      if (tsGroup.type === 'temperature') {
+        this.loadChartData(tsGroup.timeseries, 
+          this.temperatureLabels, this.temperatureDataSets[0].data, this.temperatureChartOptions);
+
+        if (tsGroup.timeseries.length > 0) {
+          this.lastTemperatureValue = tsGroup.timeseries[tsGroup.timeseries.length - 1];
+        }
+      } else if (tsGroup.type === 'humidity') {
+        this.loadChartData(tsGroup.timeseries,
+          this.humidityLabels, this.humidityDataSets[0].data, this.humidityChartOptions);
+
+        if (tsGroup.timeseries.length > 0) {
+          this.lastHumidityValue = tsGroup.timeseries[tsGroup.timeseries.length - 1];
+        }
+      } else if (tsGroup.type === 'pressure') {
+        this.loadChartData(tsGroup.timeseries,
+          this.pressureLabels, this.pressureDataSets[0].data, this.pressureChartOptions);
+
+          if (tsGroup.timeseries.length > 0) {
+            this.lastPressureValue = tsGroup.timeseries[tsGroup.timeseries.length - 1];
+          }
+      } else if (tsGroup.type === 'pmten') {
+        this.loadChartData(tsGroup.timeseries,
+          this.airQualityLabels, this.airQualityDataSets[0].data, this.airQualityChartOptions, ts => ts.value < 1000);
+
+        if (tsGroup.timeseries.length > 0) {
+          this.lastPM10Value = tsGroup.timeseries[tsGroup.timeseries.length - 1];
+        }
+      } else if (tsGroup.type === 'pmtwofive') {
+        this.loadChartData(tsGroup.timeseries,
+          [], this.airQualityDataSets[1].data, this.airQualityChartOptions, ts=> ts.value < 1000);
+        
+        if (tsGroup.timeseries.length > 0) {
+           this.lastPM25Value = tsGroup.timeseries[tsGroup.timeseries.length - 1];
+        }
+      }
+    });
   }
 
   private loadChartData(timeseries: any[], labels: any[], dataSet: any[], options: any, tsFilter = (ts => true)) {

@@ -14,9 +14,11 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { FormsModule } from '@angular/forms';
 import { SuiModule } from 'ng2-semantic-ui';
 import { DevicesService } from './services/devices.service';
+import { StompRService } from "@stomp/ng2-stompjs";
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
- 
+import { RealTimeService } from './services/real-time.service';
+
 const VIEWS = [Views.GraphViewComponent, Views.LoginComponent, Views.DeviceViewComponent];
 const COMPONENTS = [Components.TopBarComponent];
 
@@ -24,7 +26,7 @@ const COMPONENTS = [Components.TopBarComponent];
 @NgModule({
   declarations: [
     AppComponent,
-    ...VIEWS, ...COMPONENTS 
+    ...VIEWS, ...COMPONENTS
   ],
   imports: [
     BrowserModule,
@@ -43,9 +45,11 @@ const COMPONENTS = [Components.TopBarComponent];
   providers: [
     TimeseriesService,
     DevicesService,
+    RealTimeService,
     AuthorizationService,
     CookieService,
     AuthorizationGuardService,
+    StompRService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

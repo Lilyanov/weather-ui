@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DevicesService } from 'src/app/services/devices.service';
 import { ToastrService } from 'ngx-toastr';
+import { RealTimeService } from 'src/app/services/real-time.service';
 
 @Component({
   selector: 'app-device-view',
@@ -14,7 +15,7 @@ export class DeviceViewComponent implements OnInit {
   public devices: any[] = [];
   public dataLoaded: boolean;
 
-  constructor(private deviceService: DevicesService, private toastr: ToastrService) { }
+  constructor(private deviceService: DevicesService, private toastr: ToastrService, private realtimeService: RealTimeService) { }
 
   ngOnInit() {
     this.dataLoaded = false;
@@ -25,6 +26,21 @@ export class DeviceViewComponent implements OnInit {
       });
       this.dataLoaded = true;
     });
+    this.realtimeService.getDeviceStatus().subscribe(status => {
+      const response = JSON.parse(status.body).body;
+      let device = this.devices.find(d => d.deviceId === response.deviceId);
+      if (device) {
+        device.lastStatusChange = response.lastStatusChange;
+        device.schedules = this.parseSchedules(response.schedules);
+        if (device.status != response.status) {
+          this.toastr.success(
+            `Lamp ${response.deviceId} was switched ${response.status ? 'ON' : 'OFF'} successully`,
+            'Success'
+          );
+        }
+        device.status = response.status;
+      }
+    });
   }
 
   public deviceSwitch(deviceId: string, status: number) {
@@ -34,7 +50,6 @@ export class DeviceViewComponent implements OnInit {
         const device = this.devices.find(d => d.deviceId === deviceId);
         device.status = response.lampStatus;
         this.dataLoaded = true;
-        this.toastr.success('Success', 'Lamp was switched successully');
       },
       errorRes => {
         this.dataLoaded = true;
@@ -74,8 +89,8 @@ export class DeviceViewComponent implements OnInit {
 
   private parseSchedules(schedules: any[]): any[] {
     return schedules.map(s => {
-        s.scheduledFor = new Date(s.scheduledFor);
-        return s;
-      });
+      s.scheduledFor = new Date(s.scheduledFor);
+      return s;
+    });
   }
 }

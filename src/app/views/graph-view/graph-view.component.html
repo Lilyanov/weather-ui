@@ -22,7 +22,7 @@
         <div class="ui left icon input">
           <i class="calendar icon"></i>
           <input suiDatepicker readonly [(ngModel)]="dateTo" pickerMode="date" pickerFirstDayOfWeek="1"
-          [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateTo($event)">
+            [pickerUseNativeOnMobile]="false" (ngModelChange)="updateDateTo($event)">
         </div>
       </div>
     </div>
@@ -30,7 +30,22 @@
 </div>
 
 <div class="ui segment">
-  <h1>Air Quality</h1>
+  <div class="header">
+    <h1>Air Quality</h1>
+    <div class="content">
+      <div>
+        <label><strong>PM10: </strong></label>
+        <a class="header">{{ lastPM10Value.value}} µg/m3</a>
+      </div>
+      <div>
+        <label><strong>PM2.5: </strong></label>
+        <a class="header">{{ lastPM25Value.value}} µg/m3</a>
+      </div>
+      <div class="meta">
+        <span class="date">Last updated at {{ lastPM10Value.valueTime | date: 'HH:mm dd/MM/yy' }}</span>
+      </div>
+    </div>
+  </div>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
@@ -38,12 +53,20 @@
           [options]="airQualityChartOptions" legend="true" chartType="line">
         </canvas>
       </div>
-    </div> 
+    </div>
   </div>
 </div>
 
 <div class="ui segment">
-  <h1>Temperature</h1>
+  <div class="header">
+    <h1>Temperature</h1>
+    <div class="content">
+      <a class="header">{{ lastTemperatureValue.value}} °C</a>
+      <div class="meta">
+        <span class="date">Last updated at {{ lastTemperatureValue.valueTime | date: 'HH:mm dd/MM/yy' }}</span>
+      </div>
+    </div>
+  </div>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
@@ -56,7 +79,15 @@
 </div>
 
 <div class="ui segment">
-  <h1>Humidity</h1>
+  <div class="header">
+    <h1>Humidity</h1>
+    <div class="content">
+      <a class="header">{{ lastHumidityValue.value}} %</a>
+      <div class="meta">
+        <span class="date">Last updated at {{ lastHumidityValue.valueTime | date: 'HH:mm dd/MM/yy' }}</span>
+      </div>
+    </div>
+  </div>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
@@ -64,12 +95,20 @@
           [options]="humidityChartOptions" legend="false" chartType="line">
         </canvas>
       </div>
-    </div> 
+    </div>
   </div>
 </div>
 
 <div class="ui segment">
-  <h1>Pressure</h1>
+  <div class="header">
+    <h1>Pressure</h1>
+    <div class="content">
+      <a class="header">{{ lastPressureValue.value}} hPa</a>
+      <div class="meta">
+        <span class="date">Last updated at {{ lastPressureValue.valueTime | date: 'HH:mm dd/MM/yy' }}</span>
+      </div>
+    </div>
+  </div>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
