@@ -48,8 +48,8 @@
   </div>
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
-      <div class="chart-container">
-        <canvas baseChart height="40" [datasets]="airQualityDataSets" [labels]="airQualityLabels"
+      <div class="chart-container"> 
+        <canvas baseChart [datasets]="airQualityDataSets" [labels]="airQualityLabels"
           [options]="airQualityChartOptions" legend="true" chartType="line">
         </canvas>
       </div>
@@ -70,7 +70,7 @@
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
-        <canvas #temperatureChart baseChart height="40" [datasets]="temperatureDataSets" [labels]="temperatureLabels"
+        <canvas baseChart [datasets]="temperatureDataSets" [labels]="temperatureLabels"
           [options]="temperatureChartOptions" legend="false" chartType="line" [plugins]="lineChartPlugins">
         </canvas>
       </div>
@@ -91,7 +91,7 @@
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
-        <canvas baseChart height="40" [datasets]="humidityDataSets" [labels]="humidityLabels"
+        <canvas baseChart [datasets]="humidityDataSets" [labels]="humidityLabels"
           [options]="humidityChartOptions" legend="false" chartType="line">
         </canvas>
       </div>
@@ -112,7 +112,7 @@
   <div class="one column row no-top-padding no-bottom-padding">
     <div class="column">
       <div class="chart-container">
-        <canvas baseChart height="40" [datasets]="pressureDataSets" [labels]="pressureLabels"
+        <canvas baseChart [datasets]="pressureDataSets" [labels]="pressureLabels"
           [options]="pressureChartOptions" [legend]="'false'" chartType="line">
         </canvas>
       </div>

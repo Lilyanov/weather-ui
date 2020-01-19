@@ -17,6 +17,7 @@ export class GraphViewComponent implements OnInit {
 
   private baseChartOptions: (ChartOptions & { annotation: any }) = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       xAxes: [
         {

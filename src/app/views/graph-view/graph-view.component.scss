@@ -1,5 +1,13 @@
 .chart-container {
   display: block;
+  height: 250px;
+  margin-bottom: 45px;
+}
+
+@media only screen and (max-width: 768px) {
+  .chart-container {
+    height: 200px;
+  }
 }
 
 .row .ui.form {
