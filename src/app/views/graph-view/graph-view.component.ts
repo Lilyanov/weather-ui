@@ -22,7 +22,11 @@ export class GraphViewComponent implements OnInit {
       xAxes: [
         {
           id: 'x-axis-0',
+          gridLines: {
+            display: true
+          }, 
           ticks: {
+            display: true,
             min: moment().startOf('day').add('minute', this.utcOffset),
             max: moment().startOf('day').add('day', 1).add('minute', this.utcOffset)
           },
@@ -35,7 +39,7 @@ export class GraphViewComponent implements OnInit {
             unitStepSize: 1,
             tooltipFormat: 'YYYY-MM-DD HH:mm',
             displayFormats: {
-              'minute': 'HH:mm',
+              'minute': 'HH:mm', 
               'hour': 'HH:mm'
             }
           }
@@ -43,9 +47,11 @@ export class GraphViewComponent implements OnInit {
         {
           id: 'x-axis-1',
           gridLines: {
+            display: true,
             lineWidth: 3
-          },
+          }, 
           ticks: {
+            display: true,
             min: moment().startOf('day').add('minute', this.utcOffset),
             max: moment().startOf('day').add('day', 1).add('minute', this.utcOffset)
           },
@@ -191,58 +197,80 @@ export class GraphViewComponent implements OnInit {
 
   }
 
-  public updateDateTo(newDateTo: Date) {
+  public updateDateTo(newDateTo: Date): void {
     if (!this.prevousDateTo || !this.dateTo || this.prevousDateTo.getTime() == newDateTo.getTime()) {
       return;
     }
     this.dateTo = newDateTo;
     this.prevousDateTo = newDateTo;
-    const chartDateTo = moment(newDateTo).add('minute', this.utcOffset);
- 
-    this.airQualityChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
-    this.airQualityChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
-    this.airQualityChartOptions = this.deepCopy(this.airQualityChartOptions);
 
-    this.temperatureChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
-    this.temperatureChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
-    this.temperatureChartOptions = this.deepCopy(this.temperatureChartOptions);
+    this.airQualityChartOptions = this.deepCopy(
+      this.applyDateChange(this.airQualityChartOptions, 'max')
+    );
 
-    this.humidityChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
-    this.humidityChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
-    this.humidityChartOptions = this.deepCopy(this.humidityChartOptions);
+    this.temperatureChartOptions = this.deepCopy(
+      this.applyDateChange(this.temperatureChartOptions, 'max')
+    );
 
-    this.pressureChartOptions.scales.xAxes[0].ticks.max = chartDateTo;
-    this.pressureChartOptions.scales.xAxes[1].ticks.max = chartDateTo;
-    this.pressureChartOptions = this.deepCopy(this.pressureChartOptions);
+    this.humidityChartOptions = this.deepCopy(
+      this.applyDateChange(this.humidityChartOptions, 'max')
+    );
+
+    this.pressureChartOptions = this.deepCopy(
+      this.applyDateChange(this.pressureChartOptions, 'max')
+    );
 
     this.loadTimeseries();
   }
 
-  public updateDateFrom(newDateFrom: Date) {
+  public updateDateFrom(newDateFrom: Date): void {
     if (!this.prevousDateFrom || !this.dateFrom || this.prevousDateFrom.getTime() == newDateFrom.getTime()) {
       return;
     }
     this.dateFrom = newDateFrom;
     this.prevousDateFrom = newDateFrom;
-    const chartDateFrom = moment(newDateFrom).add('minute', this.utcOffset);
 
-    this.airQualityChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
-    this.airQualityChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
-    this.airQualityChartOptions = this.deepCopy(this.airQualityChartOptions);
+    this.airQualityChartOptions = this.deepCopy(
+      this.applyDateChange(this.airQualityChartOptions, 'min')
+    );
 
-    this.temperatureChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
-    this.temperatureChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
-    this.temperatureChartOptions = this.deepCopy(this.temperatureChartOptions);
+    this.temperatureChartOptions = this.deepCopy(
+      this.applyDateChange(this.temperatureChartOptions, 'min')
+    );
 
-    this.humidityChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
-    this.humidityChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
-    this.humidityChartOptions = this.deepCopy(this.humidityChartOptions);
+    this.humidityChartOptions = this.deepCopy(
+      this.applyDateChange(this.humidityChartOptions, 'min')
+    );
 
-    this.pressureChartOptions.scales.xAxes[0].ticks.min = chartDateFrom;
-    this.pressureChartOptions.scales.xAxes[1].ticks.min = chartDateFrom;
-    this.pressureChartOptions = this.deepCopy(this.pressureChartOptions);
+    this.pressureChartOptions = this.deepCopy(
+      this.applyDateChange(this.pressureChartOptions, 'min')
+    );
 
     this.loadTimeseries();
+  }
+
+  private applyDateChange(chartOptions: ChartOptions, tickLimit: string): ChartOptions {
+    let newDate;
+    if (tickLimit === 'min') {
+      newDate = moment(this.dateFrom).add('minute', this.utcOffset);
+    } else {
+      newDate = moment(this.dateTo).add('minute', this.utcOffset);
+    }
+
+    chartOptions.scales.xAxes[0].ticks[tickLimit] = newDate;
+    chartOptions.scales.xAxes[1].ticks[tickLimit] = newDate;
+    return this.setXGridLines(chartOptions);
+  }
+
+  private setXGridLines(chartOptions: ChartOptions): ChartOptions {
+    let showXGrids = true;
+    const diffInDays = moment(this.dateTo).diff(moment(this.dateFrom), 'days');
+    if (diffInDays > 30) {
+      showXGrids = false;
+    }
+    chartOptions.scales.xAxes[0].ticks.display = showXGrids;
+    chartOptions.scales.xAxes[0].gridLines.display = showXGrids;
+    return chartOptions;
   }
 
   private loadTimeseries(): void {
@@ -264,7 +292,7 @@ export class GraphViewComponent implements OnInit {
       }); 
   }
 
-  private showTimeseries(timeseriesGroups: any[]) {
+  private showTimeseries(timeseriesGroups: any[]): void {
     timeseriesGroups.forEach(tsGroup => {
       if (tsGroup.type === 'temperature') {
         this.loadChartData(tsGroup.timeseries, 
@@ -305,7 +333,7 @@ export class GraphViewComponent implements OnInit {
     });
   }
 
-  private loadChartData(timeseries: any[], labels: any[], dataSet: any[], options: any, tsFilter = (ts => true)) {
+  private loadChartData(timeseries: any[], labels: any[], dataSet: any[], options: any, tsFilter = (ts => true)): void {
     options.annotation.annotations = options.annotation.annotations.slice(0, 2);
     timeseries.forEach(ts => {
       labels.push(moment(ts.valueTime));
@@ -315,7 +343,7 @@ export class GraphViewComponent implements OnInit {
     });
   }
 
-  private deepCopy(obj: any) {
+  private deepCopy(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
   }
 }
